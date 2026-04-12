@@ -158,6 +158,7 @@ function baslat(){
     function draw(time){
 
         if(!lastTime) lastTime = time;
+
         let dt = (time - lastTime)/1000;
         lastTime = time;
 
@@ -165,17 +166,14 @@ function baslat(){
 
         ctx.clearRect(0,0,700,400);
 
-        /* zemin */
         ctx.fillStyle = "white";
         ctx.fillRect(100,350,500,4);
 
-        /* hareket */
         let x = 100 + vx * t * scale;
         let y = 350 - (vy * t * scale - 0.5 * 9.8 * t * t * scale);
 
         trail.push({x,y});
 
-        /* iz */
         for(let i=0;i<trail.length;i++){
             ctx.beginPath();
             ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI*2);
@@ -183,13 +181,11 @@ function baslat(){
             ctx.fill();
         }
 
-        /* cisim */
         ctx.beginPath();
         ctx.arc(x,y,6,0,Math.PI*2);
         ctx.fillStyle="red";
         ctx.fill();
 
-        /* veri yaz */
         ctx.fillStyle = "white";
         ctx.fillText("Zaman: " + t.toFixed(2) + " s", 10, 20);
 
@@ -200,7 +196,8 @@ function baslat(){
         }
     }
 
-    draw();
+    // 🔥 KRİTİK SATIR
+    anim = requestAnimationFrame(draw);
 }
 
 </script>
