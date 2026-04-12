@@ -39,6 +39,13 @@ video {
     border-radius: 10px;
 }
 
+.text-box {
+    max-width: 800px;
+    margin: auto;
+    line-height: 1.6;
+    text-align: left;
+}
+
 .ruler {
     position: relative;
     width: 600px;
@@ -57,38 +64,44 @@ video {
 
 <body>
 
-<!-- ANA SAYFA -->
+<!-- ================= ANA SAYFA ================= -->
 <div id="home" class="page active">
+
 <h1>🎯 Eğik Atış Laboratuvarı</h1>
-<p>Farklı açılarda cisimlerin hareketini incele</p>
-<button onclick="sayfa('sim')">🚀 Başla</button>
+
+<button onclick="sayfa('konu')">📘 Konu Anlatımı</button>
+<button onclick="sayfa('sim')">🎮 Kendin Dene</button>
+
 </div>
 
-<!-- SİMÜLASYON -->
+<!-- ================= KONU ================= -->
+<div id="konu" class="page">
+
+<h2>📘 Konu Anlatımı</h2>
+
+<div class="text-box">
+<p>
+Fizikte Eğik Atış Hareketi, bir cismin yatayla belirli bir açı yapacak şekilde fırlatılması sonucu oluşan iki boyutlu bir harekettir. Bu hareket, yatay ve düşey doğrultuda birbirinden bağımsız iki hareketin birleşimi olarak incelenir. Yatay doğrultuda sabit hızlı hareket söz konusuyken, düşey doğrultuda yerçekimi etkisiyle düzgün ivmeli hareket gerçekleşir.
+</p>
+
+<p>
+Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar birçok alanda karşımıza çıkmaktadır. Örneğin bir futbol topunun kaleye gönderilmesi, bir basketbol topunun potaya atılması veya roketlerin fırlatılması bu hareket türüne örnek olarak verilebilir.
+</p>
+</div>
+
+<button onclick="sayfa('home')">⬅ Geri</button>
+</div>
+
+<!-- ================= SİMÜLASYON ================= -->
 <div id="sim" class="page">
 
 <h2>🎮 Simülasyon</h2>
 
-<h3>🎥 Videolar</h3>
-<button onclick="videoDegistir('25.mp4')">25°</button>
-<button onclick="videoDegistir('30.mp4')">30°</button>
-<button onclick="videoDegistir('45.mp4')">45°</button>
-<button onclick="videoDegistir('60.mp4')">60°</button>
-
-<br>
-
-<video id="video" width="500" controls>
-<source id="source" src="25.mp4">
-</video>
-
-<hr>
-
-<h3>🎯 Simülasyon</h3>
 <input id="angle" type="number" placeholder="Açı (°)">
 <input id="speed" type="number" placeholder="Hız (m/s)">
 <button onclick="baslat()">Başlat</button>
 
-<div class="ruler" id="ruler"></div>
+<br>
 
 <canvas id="canvas" width="700" height="400"></canvas>
 
@@ -105,25 +118,6 @@ function sayfa(id){
     document.getElementById(id).classList.add("active");
 }
 
-/* VIDEO */
-function videoDegistir(file){
-    let source = document.getElementById("source");
-    let video = document.getElementById("video");
-    source.src = file;
-    video.load();
-    video.play();
-}
-
-/* CETVEL */
-let ruler = document.getElementById("ruler");
-for(let i=0;i<=10;i++){
-    let tick = document.createElement("div");
-    tick.className = "tick";
-    tick.style.left = (i * 60) + "px";
-    tick.innerHTML = i * 10;
-    ruler.appendChild(tick);
-}
-
 /* CANVAS */
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
@@ -132,6 +126,7 @@ let t = 0;
 let anim;
 let trail = [];
 
+/* SİMÜLASYON */
 function baslat(){
 
     cancelAnimationFrame(anim);
@@ -152,7 +147,13 @@ function baslat(){
     let vx = speed * Math.cos(rad);
     let vy = speed * Math.sin(rad);
 
+    let g = 9.8;
     let scale = 8;
+
+    /* 📊 MENZİL & MAX YÜKSEKLİK */
+    let range = (speed * speed * Math.sin(2 * rad)) / g;
+    let maxHeight = (speed * speed * Math.sin(rad) * Math.sin(rad)) / (2 * g);
+
     let lastTime = 0;
 
     function draw(time){
@@ -172,7 +173,7 @@ function baslat(){
 
         /* hareket */
         let x = 100 + vx * t * scale;
-        let y = 350 - (vy * t * scale - 0.5 * 9.8 * t * t * scale);
+        let y = 350 - (vy * t * scale - 0.5 * g * t * t * scale);
 
         trail.push({x,y});
 
@@ -190,20 +191,20 @@ function baslat(){
         ctx.fillStyle="red";
         ctx.fill();
 
-        /* bilgi */
+        /* 📊 BİLGİLER */
         ctx.fillStyle = "white";
         ctx.fillText("Zaman: " + t.toFixed(2) + " s", 10, 20);
-        ctx.fillText("Açı: " + angle + "°", 10, 40);
-        ctx.fillText("Hız: " + speed + " m/s", 10, 60);
+        ctx.fillText("Menzil: " + range.toFixed(2) + " m", 10, 40);
+        ctx.fillText("Max Yükseklik: " + maxHeight.toFixed(2) + " m", 10, 60);
 
-        if(trail.length > 100) trail.shift();
+        if(trail.length > 120) trail.shift();
 
+        /* durma */
         if(y <= 350 && x <= 700){
             anim = requestAnimationFrame(draw);
         }
     }
 
-    /* 🔥 KRİTİK BAŞLATMA */
     anim = requestAnimationFrame(draw);
 }
 
