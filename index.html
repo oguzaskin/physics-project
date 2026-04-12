@@ -151,8 +151,13 @@ function start(){
     t = 0;
     trail = [];
 
-    let angle = parseFloat(document.getElementById("angle").value || 45);
-    let speed = parseFloat(document.getElementById("speed").value || 20);
+    // ✔ güvenli değer alma
+    let angle = Number(document.getElementById("angle").value);
+    let speed = Number(document.getElementById("speed").value);
+
+    // ✔ boşsa varsayılan değer
+    if (!angle) angle = 45;
+    if (!speed) speed = 20;
 
     let rad = angle * Math.PI / 180;
 
@@ -171,8 +176,10 @@ function start(){
         let x = 100 + vx*t*5;
         let y = 350 - (vy*t*5 - 0.5*9.8*t*t*5);
 
-        // yere çarpma
-        if(y >= 350) y = 350;
+        // yere çarpınca sabitle
+        if(y >= 350){
+            y = 350;
+        }
 
         // trail
         trail.push({x,y});
@@ -184,13 +191,12 @@ function start(){
             ctx.fill();
         }
 
-        // cisim
+        // top
         ctx.beginPath();
         ctx.arc(x,y,6,0,Math.PI*2);
         ctx.fillStyle="red";
         ctx.fill();
 
-        // trail limit
         if(trail.length > 80) trail.shift();
 
         t += 0.02;
