@@ -55,20 +55,37 @@ canvas {
 
 </div>
 
-<!-- KONU -->
+!-- ================= KONU ANLATIMI ================= -->
 <div id="konu" class="page">
 
 <h2>📘 Konu Anlatımı</h2>
 
 <div class="text-box">
 <p>
-Fizikte Eğik Atış Hareketi, bir cismin yatayla belirli bir açı yapacak şekilde fırlatılması sonucu oluşan iki boyutlu bir harekettir.
+Fizikte Eğik Atış Hareketi, bir cismin yatayla belirli bir açı yapacak şekilde fırlatılması sonucu oluşan iki boyutlu bir harekettir. Bu hareket, yatay ve düşey doğrultuda birbirinden bağımsız iki hareketin birleşimi olarak incelenir. Yatay doğrultuda sabit hızlı hareket söz konusuyken, düşey doğrultuda yerçekimi etkisiyle düzgün ivmeli hareket gerçekleşir.
+</p>
+
+<p>
+Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar birçok alanda karşımıza çıkmaktadır. Örneğin bir futbol topunun kaleye gönderilmesi, bir basketbol topunun potaya atılması veya roketlerin fırlatılması bu hareket türüne örnek olarak verilebilir. Bu nedenle eğik atış konusu, hem günlük hayatla bağlantılı olması hem de fiziksel prensipleri anlamak açısından oldukça önemlidir.
 </p>
 </div>
 
-<button onclick="sayfa('home')">⬅ Geri</button>
-</div>
+<h3>🎥 Videolar</h3>
+<button onclick="videoDegistir('25.mp4')">25°</button>
+<button onclick="videoDegistir('30.mp4')">30°</button>
+<button onclick="videoDegistir('45.mp4')">45°</button>
+<button onclick="videoDegistir('60.mp4')">60°</button>
 
+<br>
+
+<video id="video" width="500" controls>
+<source id="source" src="25.mp4">
+</video>
+
+<br><br>
+<button onclick="sayfa('home')">⬅ Geri</button>
+
+</div>
 <!-- SİMÜLASYON -->
 <div id="sim" class="page">
 
