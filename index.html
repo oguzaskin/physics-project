@@ -34,37 +34,18 @@ canvas {
     margin-top: 15px;
 }
 
-video {
-    margin-top: 15px;
-    border-radius: 10px;
-}
-
 .text-box {
     max-width: 800px;
     margin: auto;
     line-height: 1.6;
     text-align: left;
 }
-
-.ruler {
-    position: relative;
-    width: 600px;
-    height: 30px;
-    margin: 10px auto;
-    border-top: 2px solid white;
-}
-
-.tick {
-    position: absolute;
-    top: -10px;
-    font-size: 10px;
-}
 </style>
 </head>
 
 <body>
 
-<!-- ================= ANA SAYFA ================= -->
+<!-- ANA SAYFA -->
 <div id="home" class="page active">
 
 <h1>🎯 Eğik Atış Laboratuvarı</h1>
@@ -74,25 +55,21 @@ video {
 
 </div>
 
-<!-- ================= KONU ================= -->
+<!-- KONU -->
 <div id="konu" class="page">
 
 <h2>📘 Konu Anlatımı</h2>
 
 <div class="text-box">
 <p>
-Fizikte Eğik Atış Hareketi, bir cismin yatayla belirli bir açı yapacak şekilde fırlatılması sonucu oluşan iki boyutlu bir harekettir. Bu hareket, yatay ve düşey doğrultuda birbirinden bağımsız iki hareketin birleşimi olarak incelenir. Yatay doğrultuda sabit hızlı hareket söz konusuyken, düşey doğrultuda yerçekimi etkisiyle düzgün ivmeli hareket gerçekleşir.
-</p>
-
-<p>
-Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar birçok alanda karşımıza çıkmaktadır. Örneğin bir futbol topunun kaleye gönderilmesi, bir basketbol topunun potaya atılması veya roketlerin fırlatılması bu hareket türüne örnek olarak verilebilir.
+Fizikte Eğik Atış Hareketi, bir cismin yatayla belirli bir açı yapacak şekilde fırlatılması sonucu oluşan iki boyutlu bir harekettir.
 </p>
 </div>
 
 <button onclick="sayfa('home')">⬅ Geri</button>
 </div>
 
-<!-- ================= SİMÜLASYON ================= -->
+<!-- SİMÜLASYON -->
 <div id="sim" class="page">
 
 <h2>🎮 Simülasyon</h2>
@@ -103,7 +80,7 @@ Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar 
 
 <br>
 
-<canvas id="canvas" width="700" height="400"></canvas>
+<canvas id="canvas" width="1000" height="400"></canvas>
 
 <br>
 <button onclick="sayfa('home')">⬅ Geri</button>
@@ -112,7 +89,7 @@ Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar 
 
 <script>
 
-/* SAYFA GEÇİŞ */
+/* SAYFA */
 function sayfa(id){
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(id).classList.add("active");
@@ -138,7 +115,7 @@ function baslat(){
     let speed = parseFloat(document.getElementById("speed").value);
 
     if (isNaN(angle) || isNaN(speed)) {
-        alert("Lütfen açı ve hız gir!");
+        alert("Açı ve hız gir!");
         return;
     }
 
@@ -149,57 +126,10 @@ function baslat(){
 
     let g = 9.8;
 
-    /* 🔥 DİNAMİK ÖLÇEK */
-    let scale = Math.max(1.5, 500 / speed);
+    /* ölçek */
+    let scale = Math.max(2, 500 / speed);
 
-    let lastTime = 0;
-
-    function draw(time){
-
-        if(!lastTime) lastTime = time;
-
-        let dt = (time - lastTime)/1000;
-        lastTime = time;
-
-        t += dt;
-
-        ctx.clearRect(0,0,1000,400);
-
-        /* 🔥 UZATILMIŞ ZEMİN */
-        ctx.fillStyle = "white";
-        ctx.fillRect(50,350,900,4);
-
-        let x = 50 + vx * t * scale;
-        let y = 350 - (vy * t * scale - 0.5 * g * t * t * scale);
-
-        trail.push({x,y});
-
-        for(let i=0;i<trail.length;i++){
-            ctx.beginPath();
-            ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI*2);
-            ctx.fillStyle = "rgba(255,0,0,"+(i/trail.length)+")";
-            ctx.fill();
-        }
-
-        ctx.beginPath();
-        ctx.arc(x,y,6,0,Math.PI*2);
-        ctx.fillStyle="red";
-        ctx.fill();
-
-        ctx.fillStyle = "white";
-        ctx.fillText("Zaman: " + t.toFixed(2) + " s", 10, 20);
-
-        if(trail.length > 150) trail.shift();
-
-        if(y <= 350 && x <= 950){
-            anim = requestAnimationFrame(draw);
-        }
-    }
-
-    anim = requestAnimationFrame(draw);
-}
-
-    /* 📊 MENZİL & MAX YÜKSEKLİK */
+    /* 📊 MENZİL + MAX YÜKSEKLİK */
     let range = (speed * speed * Math.sin(2 * rad)) / g;
     let maxHeight = (speed * speed * Math.sin(rad) * Math.sin(rad)) / (2 * g);
 
@@ -214,28 +144,24 @@ function baslat(){
 
         t += dt;
 
-        ctx.clearRect(0,0,700,400);
+        ctx.clearRect(0,0,1000,400);
 
-        /* zemin */
-      ctx.fillStyle = "white";
-ctx.fillRect(50, 350, 900, 4);
+        /* 🌍 ZEMİN */
+        ctx.fillStyle = "white";
+        ctx.fillRect(50,350,900,4);
 
-/* 📏 METRE İŞARETLERİ */
-ctx.fillStyle = "white";
-ctx.font = "10px Arial";
+        /* 📏 METRE */
+        ctx.fillStyle = "white";
+        ctx.font = "10px Arial";
 
-let meterScale = scale; // 1 birim = scale pixel
+        for(let m = 0; m <= 200; m += 10){
+            let xPos = 50 + m * scale;
+            ctx.fillRect(xPos, 345, 2, 10);
+            ctx.fillText(m + " m", xPos - 10, 340);
+        }
 
-for(let m = 0; m <= 100; m += 10){
-
-    let xPos = 50 + m * meterScale;
-
-    ctx.fillRect(xPos, 345, 2, 10);
-    ctx.fillText(m + " m", xPos - 10, 340);
-}
-
-        /* hareket */
-        let x = 100 + vx * t * scale;
+        /* 🚀 hareket */
+        let x = 50 + vx * t * scale;
         let y = 350 - (vy * t * scale - 0.5 * g * t * t * scale);
 
         trail.push({x,y});
@@ -260,10 +186,9 @@ for(let m = 0; m <= 100; m += 10){
         ctx.fillText("Menzil: " + range.toFixed(2) + " m", 10, 40);
         ctx.fillText("Max Yükseklik: " + maxHeight.toFixed(2) + " m", 10, 60);
 
-        if(trail.length > 120) trail.shift();
+        if(trail.length > 150) trail.shift();
 
-        /* durma */
-        if(y <= 350 && x <= 700){
+        if(y <= 350 && x <= 950){
             anim = requestAnimationFrame(draw);
         }
     }
