@@ -8,59 +8,39 @@
 <style>
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: linear-gradient(135deg, #0f172a, #1e293b);
     color: white;
     text-align: center;
 }
 
-/* Başlık */
-h1 {
-    margin-top: 20px;
-    font-size: 28px;
-}
+h1 { margin-top: 15px; }
 
-/* Buton alanı */
-.buttons {
-    margin: 20px;
-}
-
-/* Modern buton */
 button {
-    background: #2563eb;
+    margin: 5px;
+    padding: 10px 15px;
     border: none;
-    padding: 12px 20px;
-    margin: 8px;
     border-radius: 10px;
+    background: #2563eb;
     color: white;
-    font-size: 16px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 button:hover {
     background: #1d4ed8;
-    transform: scale(1.1);
 }
 
-/* Video */
-.video-container {
+iframe, video {
     margin-top: 20px;
+    border-radius: 12px;
 }
 
-video {
-    width: 80%;
-    max-width: 700px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    opacity: 1;
-    transition: opacity 0.5s ease;
-}
-
-/* Fade efekti */
-.fade {
-    opacity: 0;
+input {
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    margin-top: 10px;
+    width: 100px;
 }
 </style>
 
@@ -68,39 +48,62 @@ video {
 
 <body>
 
-<h1> Eğik Atış Simülasyonu</h1>
+<h1>🎯 Eğik Atış Simülasyonu</h1>
 
-<p>Farklı açılarla atılan cisimlerin hareketini incele</p>
+<p>Hazır videolar + canlı simülasyon</p>
 
-<div class="buttons">
-    <button onclick="videoDegistir('25.mp4')">25°’lik Açı ile Atış</button>
-<button onclick="videoDegistir('30.mp4')">30°’lik Açı ile Atış</button>
-<button onclick="videoDegistir('45.mp4')">45°’lik Açı ile Atış</button>
-<button onclick="videoDegistir('60.mp4')">60°’lik Açı ile Atış</button>
+<!-- BUTONLAR -->
+<div>
+    <button onclick="videoDegistir('25.mp4')">25°</button>
+    <button onclick="videoDegistir('30.mp4')">30°</button>
+    <button onclick="videoDegistir('45.mp4')">45°</button>
+    <button onclick="videoDegistir('60.mp4')">60°</button>
 </div>
 
-<div class="video-container">
-    <video id="video" controls>
-        <source src="25.mp4" type="video/mp4">
-    </video>
-</div>
+<!-- VIDEO -->
+<video id="video" width="600" controls>
+    <source id="source" src="25.mp4" type="video/mp4">
+</video>
+
+<hr>
+
+<!-- KULLANICI AÇI GİRİŞİ -->
+<h3>Kendi açını dene</h3>
+<input type="number" id="aci" placeholder="Açı gir">
+<button onclick="simAc()">Simülasyonu Aç</button>
+
+<!-- PHET SIM -->
+<iframe id="sim"
+    src="https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_tr.html"
+    width="800"
+    height="600"
+    allowfullscreen>
+</iframe>
 
 <script>
-function degistir(dosya) {
+
+// VIDEO DEĞİŞTİRME
+function videoDegistir(dosya) {
     let video = document.getElementById("video");
+    let source = document.getElementById("source");
 
-    // fade-out
-    video.classList.add("fade");
-
-    setTimeout(() => {
-        video.src = dosya;
-        video.load();
-        video.play();
-
-        // fade-in
-        video.classList.remove("fade");
-    }, 300);
+    source.src = dosya;
+    video.load();
+    video.play();
 }
+
+// PHET AÇI GİRİŞİ
+function simAc() {
+    let aci = document.getElementById("aci").value;
+
+    if (!aci) return;
+
+    let iframe = document.getElementById("sim");
+
+    // bazı simler parametre kabul etmez ama URL ile deneme yapılır
+    iframe.src = "https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_tr.html";
+}
+
 </script>
 
 </body>
