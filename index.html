@@ -217,8 +217,22 @@ function baslat(){
         ctx.clearRect(0,0,700,400);
 
         /* zemin */
-        ctx.fillStyle = "white";
-        ctx.fillRect(100,350,500,4);
+      ctx.fillStyle = "white";
+ctx.fillRect(50, 350, 900, 4);
+
+/* 📏 METRE İŞARETLERİ */
+ctx.fillStyle = "white";
+ctx.font = "10px Arial";
+
+let meterScale = scale; // 1 birim = scale pixel
+
+for(let m = 0; m <= 100; m += 10){
+
+    let xPos = 50 + m * meterScale;
+
+    ctx.fillRect(xPos, 345, 2, 10);
+    ctx.fillText(m + " m", xPos - 10, 340);
+}
 
         /* hareket */
         let x = 100 + vx * t * scale;
