@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eğik Atış Simülasyonu</title>
+</head>
+<body>
+
+<h1>Eğik Atış Simülasyonu</h1>
+
+<button onclick="videoDegistir('15.mp4')">25°’lik Açı ile Atış</button>
+<button onclick="videoDegistir('30.mp4')">30°’lik Açı ile Atış</button>
+<button onclick="videoDegistir('45.mp4')">45°’lik Açı ile Atış</button>
+<button onclick="videoDegistir('60.mp4')">60°’lik Açı ile Atış</button>
+
+<br><br>
+
+<video id="video" width="600" controls>
+    <source src="15.mp4" type="video/mp4">
+</video>
+
+<script>
+function videoDegistir(dosya) {
+    document.getElementById("video").src = dosya;
+}
+</script>
+
+</body>
+</html>
