@@ -148,7 +148,56 @@ function baslat(){
     let vy = speed * Math.sin(rad);
 
     let g = 9.8;
-    let scale = 8;
+
+    /* 🔥 DİNAMİK ÖLÇEK */
+    let scale = Math.max(1.5, 500 / speed);
+
+    let lastTime = 0;
+
+    function draw(time){
+
+        if(!lastTime) lastTime = time;
+
+        let dt = (time - lastTime)/1000;
+        lastTime = time;
+
+        t += dt;
+
+        ctx.clearRect(0,0,1000,400);
+
+        /* 🔥 UZATILMIŞ ZEMİN */
+        ctx.fillStyle = "white";
+        ctx.fillRect(50,350,900,4);
+
+        let x = 50 + vx * t * scale;
+        let y = 350 - (vy * t * scale - 0.5 * g * t * t * scale);
+
+        trail.push({x,y});
+
+        for(let i=0;i<trail.length;i++){
+            ctx.beginPath();
+            ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI*2);
+            ctx.fillStyle = "rgba(255,0,0,"+(i/trail.length)+")";
+            ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(x,y,6,0,Math.PI*2);
+        ctx.fillStyle="red";
+        ctx.fill();
+
+        ctx.fillStyle = "white";
+        ctx.fillText("Zaman: " + t.toFixed(2) + " s", 10, 20);
+
+        if(trail.length > 150) trail.shift();
+
+        if(y <= 350 && x <= 950){
+            anim = requestAnimationFrame(draw);
+        }
+    }
+
+    anim = requestAnimationFrame(draw);
+}
 
     /* 📊 MENZİL & MAX YÜKSEKLİK */
     let range = (speed * speed * Math.sin(2 * rad)) / g;
