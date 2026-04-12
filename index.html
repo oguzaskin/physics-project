@@ -137,57 +137,49 @@ for(let i=0;i<=10;i++){
 }
 
 /* FİZİK */
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
+let trail = [];
 
-let t, anim, trail;
+function draw() {
+    ctx.clearRect(0, 0, 900, 500);
 
-function baslat(){
-    t = 0;
-    trail = [];
+    // yer çizgisi
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 460, 900, 2);
 
-    let angle = document.getElementById("angle").value;
-    let speed = document.getElementById("speed").value;
+    // konum hesaplama
+    x = 50 + vx * t * 5;
+    y = 450 - (vy * t * 5 - 0.5 * 9.8 * t * t * 5);
 
-    let rad = angle * Math.PI / 180;
+    // 🔥 iz ekleme
+    trail.push({x: x, y: y});
 
-    let vx = speed * Math.cos(rad);
-    let vy = speed * Math.sin(rad);
-
-    function draw(){
-
-        ctx.clearRect(0,0,700,400);
-
-        /* zemin */
-        ctx.fillStyle = "white";
-        ctx.fillRect(100,350,500,4);
-
-        /* hareket */
-        let x = 100 + vx*t*5;
-        let y = 350 - (vy*t*5 - 0.5*9.8*t*t*5);
-
-        trail.push({x,y});
-
-        for(let i=0;i<trail.length;i++){
-            ctx.beginPath();
-            ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI*2);
-            ctx.fillStyle = "rgba(255,0,0,"+(i/trail.length)+")";
-            ctx.fill();
-        }
+    // eski izleri çiz
+    for (let i = 0; i < trail.length; i++) {
+        let p = trail[i];
 
         ctx.beginPath();
-        ctx.arc(x,y,6,0,Math.PI*2);
-        ctx.fillStyle="red";
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+
+        // eski izler daha soluk
+        ctx.fillStyle = "rgba(255, 0, 0, " + (i / trail.length) + ")";
         ctx.fill();
-
-        t += 0.02;
-
-        if(trail.length > 80) trail.shift();
-
-        if(y < 350){
-            anim = requestAnimationFrame(draw);
-        }
     }
+
+    // ana cisim
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = "red";
+    ctx.fill();
+
+    t += 0.02;
+
+    // iz uzunluğu kontrol (performans için)
+    if (trail.length > 80) trail.shift();
+
+    if (y < 460) {
+        anim = requestAnimationFrame(draw);
+    }
+}
 
     draw();
 }
