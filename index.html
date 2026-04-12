@@ -14,11 +14,9 @@ body {
     text-align: center;
 }
 
-/* SAYFA GEÇİŞ */
 .page { display: none; padding: 20px; }
 .active { display: block; }
 
-/* BUTON */
 button {
     padding: 10px 15px;
     margin: 6px;
@@ -30,20 +28,17 @@ button {
 }
 button:hover { background: #1d4ed8; }
 
-/* CANVAS */
 canvas {
     background: #111827;
     border-radius: 10px;
     margin-top: 15px;
 }
 
-/* VIDEO */
 video {
     margin-top: 15px;
     border-radius: 10px;
 }
 
-/* CETVEL */
 .ruler {
     position: relative;
     width: 600px;
@@ -51,6 +46,7 @@ video {
     margin: 10px auto;
     border-top: 2px solid white;
 }
+
 .tick {
     position: absolute;
     top: -10px;
@@ -61,26 +57,18 @@ video {
 
 <body>
 
-<!-- ================= ANA SAYFA ================= -->
+<!-- ANA SAYFA -->
 <div id="home" class="page active">
-
 <h1>🎯 Eğik Atış Laboratuvarı</h1>
-
-<p>
-Bu projede eğik atış hareketi incelenir.  
-Farklı açılarda cisimlerin hareketi gözlemlenir.
-</p>
-
+<p>Farklı açılarda cisimlerin hareketini incele</p>
 <button onclick="sayfa('sim')">🚀 Başla</button>
-
 </div>
 
-<!-- ================= SİMÜLASYON ================= -->
+<!-- SİMÜLASYON -->
 <div id="sim" class="page">
 
 <h2>🎮 Simülasyon</h2>
 
-<!-- VIDEO SEÇİM -->
 <h3>🎥 Videolar</h3>
 <button onclick="videoDegistir('25.mp4')">25°</button>
 <button onclick="videoDegistir('30.mp4')">30°</button>
@@ -95,13 +83,11 @@ Farklı açılarda cisimlerin hareketi gözlemlenir.
 
 <hr>
 
-<!-- KONTROL -->
 <h3>🎯 Simülasyon</h3>
-<input id="angle" type="number" placeholder="Açı">
-<input id="speed" type="number" placeholder="Hız">
+<input id="angle" type="number" placeholder="Açı (°)">
+<input id="speed" type="number" placeholder="Hız (m/s)">
 <button onclick="baslat()">Başlat</button>
 
-<!-- CETVEL -->
 <div class="ruler" id="ruler"></div>
 
 <canvas id="canvas" width="700" height="400"></canvas>
@@ -113,6 +99,7 @@ Farklı açılarda cisimlerin hareketi gözlemlenir.
 
 <script>
 
+/* SAYFA */
 function sayfa(id){
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(id).classList.add("active");
@@ -120,41 +107,61 @@ function sayfa(id){
 
 /* VIDEO */
 function videoDegistir(file){
-    document.getElementById("source").src = file;
-    let v = document.getElementById("video");
-    v.load();
-    v.play();
+    let source = document.getElementById("source");
+    let video = document.getElementById("video");
+    source.src = file;
+    video.load();
+    video.play();
 }
 
-/* CETVEL OLUŞTUR */
+/* CETVEL */
 let ruler = document.getElementById("ruler");
 for(let i=0;i<=10;i++){
     let tick = document.createElement("div");
     tick.className = "tick";
-    tick.style.left = (i*10*6) + "px";
+    tick.style.left = (i*60) + "px;
     tick.innerHTML = i*10;
     ruler.appendChild(tick);
 }
 
-/* FİZİK */
+/* CANVAS */
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 
-let t, anim, trail;
+let t = 0;
+let anim;
+let trail = [];
 
 function baslat(){
+
+    cancelAnimationFrame(anim);
+
     t = 0;
     trail = [];
 
-    let angle = document.getElementById("angle").value;
-    let speed = document.getElementById("speed").value;
+    let angle = parseFloat(document.getElementById("angle").value);
+    let speed = parseFloat(document.getElementById("speed").value);
+
+    if (isNaN(angle) || isNaN(speed)) {
+        alert("Lütfen açı ve hız gir!");
+        return;
+    }
 
     let rad = angle * Math.PI / 180;
 
     let vx = speed * Math.cos(rad);
     let vy = speed * Math.sin(rad);
 
-    function draw(){
+    let scale = 8;
+    let lastTime = 0;
+
+    function draw(time){
+
+        if(!lastTime) lastTime = time;
+        let dt = (time - lastTime)/1000;
+        lastTime = time;
+
+        t += dt;
 
         ctx.clearRect(0,0,700,400);
 
@@ -163,11 +170,12 @@ function baslat(){
         ctx.fillRect(100,350,500,4);
 
         /* hareket */
-        let x = 100 + vx*t*5;
-        let y = 350 - (vy*t*5 - 0.5*9.8*t*t*5);
+        let x = 100 + vx * t * scale;
+        let y = 350 - (vy * t * scale - 0.5 * 9.8 * t * t * scale);
 
         trail.push({x,y});
 
+        /* iz */
         for(let i=0;i<trail.length;i++){
             ctx.beginPath();
             ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI*2);
@@ -175,16 +183,19 @@ function baslat(){
             ctx.fill();
         }
 
+        /* cisim */
         ctx.beginPath();
         ctx.arc(x,y,6,0,Math.PI*2);
         ctx.fillStyle="red";
         ctx.fill();
 
-        t += 0.02;
+        /* veri yaz */
+        ctx.fillStyle = "white";
+        ctx.fillText("Zaman: " + t.toFixed(2) + " s", 10, 20);
 
-        if(trail.length > 80) trail.shift();
+        if(trail.length > 100) trail.shift();
 
-        if(y < 350){
+        if(y <= 350 && x <= 700){
             anim = requestAnimationFrame(draw);
         }
     }
