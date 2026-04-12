@@ -111,7 +111,8 @@ Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar 
 
 </div>
 
-<!-- ================= SİMÜLASYON ================= -->
+
+<!-- SİMÜLASYON -->
 <div id="sim" class="page">
 
 <h2>🎮 Simülasyon</h2>
@@ -120,9 +121,9 @@ Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar 
 <input id="speed" type="number" placeholder="Hız (m/s)">
 <button onclick="baslat()">Başlat</button>
 
-<div class="ruler" id="ruler"></div>
+<br>
 
-<canvas id="canvas" width="700" height="400"></canvas>
+<canvas id="canvas" width="1000" height="400"></canvas>
 
 <br>
 <button onclick="sayfa('home')">⬅ Geri</button>
@@ -131,29 +132,10 @@ Eğik atış hareketi; spor faaliyetlerinden mühendislik uygulamalarına kadar 
 
 <script>
 
-/* SAYFA GEÇİŞ */
+/* SAYFA */
 function sayfa(id){
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(id).classList.add("active");
-}
-
-/* VIDEO */
-function videoDegistir(file){
-    let source = document.getElementById("source");
-    let video = document.getElementById("video");
-    source.src = file;
-    video.load();
-    video.play();
-}
-
-/* CETVEL */
-let ruler = document.getElementById("ruler");
-for(let i=0;i<=10;i++){
-    let tick = document.createElement("div");
-    tick.className = "tick";
-    tick.style.left = (i * 60) + "px";
-    tick.innerHTML = i * 10;
-    ruler.appendChild(tick);
 }
 
 /* CANVAS */
@@ -164,6 +146,7 @@ let t = 0;
 let anim;
 let trail = [];
 
+/* SİMÜLASYON */
 function baslat(){
 
     cancelAnimationFrame(anim);
@@ -175,7 +158,7 @@ function baslat(){
     let speed = parseFloat(document.getElementById("speed").value);
 
     if (isNaN(angle) || isNaN(speed)) {
-        alert("Lütfen açı ve hız gir!");
+        alert("Açı ve hız gir!");
         return;
     }
 
@@ -184,7 +167,15 @@ function baslat(){
     let vx = speed * Math.cos(rad);
     let vy = speed * Math.sin(rad);
 
-    let scale = 8;
+    let g = 9.8;
+
+    /* ölçek */
+    let scale = Math.max(2, 500 / speed);
+
+    /* 📊 MENZİL + MAX YÜKSEKLİK */
+    let range = (speed * speed * Math.sin(2 * rad)) / g;
+    let maxHeight = (speed * speed * Math.sin(rad) * Math.sin(rad)) / (2 * g);
+
     let lastTime = 0;
 
     function draw(time){
@@ -196,16 +187,29 @@ function baslat(){
 
         t += dt;
 
-        ctx.clearRect(0,0,700,400);
+        ctx.clearRect(0,0,1000,400);
 
+        /* 🌍 ZEMİN */
         ctx.fillStyle = "white";
-        ctx.fillRect(100,350,500,4);
+        ctx.fillRect(50,350,900,4);
 
-        let x = 100 + vx * t * scale;
-        let y = 350 - (vy * t * scale - 0.5 * 9.8 * t * t * scale);
+        /* 📏 METRE */
+        ctx.fillStyle = "white";
+        ctx.font = "10px Arial";
+
+        for(let m = 0; m <= 200; m += 10){
+            let xPos = 50 + m * scale;
+            ctx.fillRect(xPos, 345, 2, 10);
+            ctx.fillText(m + " m", xPos - 10, 340);
+        }
+
+        /* 🚀 hareket */
+        let x = 50 + vx * t * scale;
+        let y = 350 - (vy * t * scale - 0.5 * g * t * t * scale);
 
         trail.push({x,y});
 
+        /* iz */
         for(let i=0;i<trail.length;i++){
             ctx.beginPath();
             ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI*2);
@@ -213,17 +217,21 @@ function baslat(){
             ctx.fill();
         }
 
+        /* cisim */
         ctx.beginPath();
         ctx.arc(x,y,6,0,Math.PI*2);
         ctx.fillStyle="red";
         ctx.fill();
 
+        /* 📊 BİLGİLER */
         ctx.fillStyle = "white";
         ctx.fillText("Zaman: " + t.toFixed(2) + " s", 10, 20);
+        ctx.fillText("Menzil: " + range.toFixed(2) + " m", 10, 40);
+        ctx.fillText("Max Yükseklik: " + maxHeight.toFixed(2) + " m", 10, 60);
 
-        if(trail.length > 100) trail.shift();
+        if(trail.length > 150) trail.shift();
 
-        if(y <= 350 && x <= 700){
+        if(y <= 350 && x <= 950){
             anim = requestAnimationFrame(draw);
         }
     }
