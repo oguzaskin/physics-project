@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eğik Atış Simülasyonu</title>
+<title>Eğik Atış Laboratuvarı</title>
 
 <style>
 body {
@@ -14,114 +14,177 @@ body {
     text-align: center;
 }
 
-h1 { margin-top: 10px; }
+/* SAYFA GEÇİŞ */
+.page { display: none; padding: 20px; }
+.active { display: block; }
 
-input {
-    padding: 8px;
-    margin: 5px;
-    border-radius: 8px;
-    border: none;
-    width: 120px;
-}
-
+/* BUTON */
 button {
     padding: 10px 15px;
+    margin: 6px;
     border: none;
     border-radius: 10px;
     background: #2563eb;
     color: white;
     cursor: pointer;
 }
+button:hover { background: #1d4ed8; }
 
-button:hover {
-    background: #1d4ed8;
-}
-
+/* CANVAS */
 canvas {
     background: #111827;
-    margin-top: 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+/* VIDEO */
+video {
+    margin-top: 15px;
     border-radius: 10px;
 }
-</style>
 
+/* CETVEL */
+.ruler {
+    position: relative;
+    width: 600px;
+    height: 30px;
+    margin: 10px auto;
+    border-top: 2px solid white;
+}
+.tick {
+    position: absolute;
+    top: -10px;
+    font-size: 10px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>🎯 Eğik Atış Simülasyonu</h1>
+<!-- ================= ANA SAYFA ================= -->
+<div id="home" class="page active">
 
-<p>Açı ve hız gir → hareketi izle</p>
+<h1>🎯 Eğik Atış Laboratuvarı</h1>
 
-<input id="angle" type="number" placeholder="Açı (°)">
-<input id="speed" type="number" placeholder="Hız (m/s)">
+<p>
+Bu projede eğik atış hareketi incelenir.  
+Farklı açılarda cisimlerin hareketi gözlemlenir.
+</p>
+
+<button onclick="sayfa('sim')">🚀 Başla</button>
+
+</div>
+
+<!-- ================= SİMÜLASYON ================= -->
+<div id="sim" class="page">
+
+<h2>🎮 Simülasyon</h2>
+
+<!-- VIDEO SEÇİM -->
+<h3>🎥 Videolar</h3>
+<button onclick="videoDegistir('25.mp4')">25°</button>
+<button onclick="videoDegistir('30.mp4')">30°</button>
+<button onclick="videoDegistir('45.mp4')">45°</button>
+<button onclick="videoDegistir('60.mp4')">60°</button>
+
+<br>
+
+<video id="video" width="500" controls>
+<source id="source" src="25.mp4">
+</video>
+
+<hr>
+
+<!-- KONTROL -->
+<h3>🎯 Simülasyon</h3>
+<input id="angle" type="number" placeholder="Açı">
+<input id="speed" type="number" placeholder="Hız">
 <button onclick="baslat()">Başlat</button>
 
-<canvas id="canvas" width="900" height="500"></canvas>
+<!-- CETVEL -->
+<div class="ruler" id="ruler"></div>
+
+<canvas id="canvas" width="700" height="400"></canvas>
+
+<br>
+<button onclick="sayfa('home')">⬅ Geri</button>
+
+</div>
 
 <script>
 
+function sayfa(id){
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+/* VIDEO */
+function videoDegistir(file){
+    document.getElementById("source").src = file;
+    let v = document.getElementById("video");
+    v.load();
+    v.play();
+}
+
+/* CETVEL OLUŞTUR */
+let ruler = document.getElementById("ruler");
+for(let i=0;i<=10;i++){
+    let tick = document.createElement("div");
+    tick.className = "tick";
+    tick.style.left = (i*10*6) + "px";
+    tick.innerHTML = i*10;
+    ruler.appendChild(tick);
+}
+
+/* FİZİK */
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 
-let t = 0;
-let anim;
-let trail = [];
+let t, anim, trail;
 
-function baslat() {
-
-    cancelAnimationFrame(anim);
-
+function baslat(){
     t = 0;
     trail = [];
 
-    // default güvenli değerler
-    let angle = Number(document.getElementById("angle").value || 45);
-    let speed = Number(document.getElementById("speed").value || 25);
+    let angle = document.getElementById("angle").value;
+    let speed = document.getElementById("speed").value;
 
     let rad = angle * Math.PI / 180;
 
     let vx = speed * Math.cos(rad);
     let vy = speed * Math.sin(rad);
 
-    function draw() {
+    function draw(){
 
-        ctx.clearRect(0, 0, 900, 500);
+        ctx.clearRect(0,0,700,400);
 
-        // ZEMİN
+        /* zemin */
         ctx.fillStyle = "white";
-        ctx.fillRect(100, 420, 700, 4);
+        ctx.fillRect(100,350,500,4);
 
-        // FİZİK
-        let x = 100 + vx * t * 5;
-        let y = 420 - (vy * t * 5 - 0.5 * 9.8 * t * t * 5);
+        /* hareket */
+        let x = 100 + vx*t*5;
+        let y = 350 - (vy*t*5 - 0.5*9.8*t*t*5);
 
-        // yere sabitle
-        if (y >= 420) y = 420;
+        trail.push({x,y});
 
-        // TRAIL EKLE
-        trail.push({ x, y });
-
-        // TRAIL ÇİZ
-        for (let i = 0; i < trail.length; i++) {
+        for(let i=0;i<trail.length;i++){
             ctx.beginPath();
-            ctx.arc(trail[i].x, trail[i].y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(255,0,0," + (i / trail.length) + ")";
+            ctx.arc(trail[i].x, trail[i].y, 3, 0, Math.PI*2);
+            ctx.fillStyle = "rgba(255,0,0,"+(i/trail.length)+")";
             ctx.fill();
         }
 
-        // ANA CİSİM
         ctx.beginPath();
-        ctx.arc(x, y, 7, 0, Math.PI * 2);
-        ctx.fillStyle = "red";
+        ctx.arc(x,y,6,0,Math.PI*2);
+        ctx.fillStyle="red";
         ctx.fill();
-
-        // trail limit
-        if (trail.length > 100) trail.shift();
 
         t += 0.02;
 
-        // DURMA
-        if (y < 420) {
+        if(trail.length > 80) trail.shift();
+
+        if(y < 350){
             anim = requestAnimationFrame(draw);
         }
     }
