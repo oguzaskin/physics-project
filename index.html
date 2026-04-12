@@ -204,8 +204,8 @@ function baslat(){
         }
 
         /* 🚀 hareket */
-        let x = 50 + vx * t * scale;
-        let y = 350 - (vy * t * scale - 0.5 * g * t * t * scale);
+        let x = 50 + (vx * t) * scale;
+        let y = 350 - (vy * t - 0.5 * g * t * t) * scale;
 
         trail.push({x,y});
 
