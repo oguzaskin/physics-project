@@ -2,22 +2,32 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eğik Atış Simülasyonu</title>
+<title>Gerçek Eğik Atış Simülasyonu</title>
 
 <style>
 body {
     margin: 0;
     font-family: Arial;
-    background: linear-gradient(135deg, #0f172a, #1e293b);
+    background: #0f172a;
     color: white;
     text-align: center;
 }
 
-h1 { margin-top: 15px; }
+canvas {
+    background: #111827;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+input {
+    padding: 8px;
+    margin: 5px;
+    border-radius: 8px;
+    border: none;
+    width: 120px;
+}
 
 button {
-    margin: 5px;
     padding: 10px 15px;
     border: none;
     border-radius: 10px;
@@ -25,22 +35,8 @@ button {
     color: white;
     cursor: pointer;
 }
-
 button:hover {
     background: #1d4ed8;
-}
-
-iframe, video {
-    margin-top: 20px;
-    border-radius: 12px;
-}
-
-input {
-    padding: 8px;
-    border-radius: 8px;
-    border: none;
-    margin-top: 10px;
-    width: 100px;
 }
 </style>
 
@@ -48,60 +44,66 @@ input {
 
 <body>
 
-<h1>🎯 Eğik Atış Simülasyonu</h1>
+<h1>🎯 Gerçek Eğik Atış Simülasyonu</h1>
 
-<p>Hazır videolar + canlı simülasyon</p>
+<p>Açı ve hız gir → hareketi izle</p>
 
-<!-- BUTONLAR -->
-<div>
-    <button onclick="videoDegistir('25.mp4')">25°</button>
-    <button onclick="videoDegistir('30.mp4')">30°</button>
-    <button onclick="videoDegistir('45.mp4')">45°</button>
-    <button onclick="videoDegistir('60.mp4')">60°</button>
-</div>
+<input id="angle" type="number" placeholder="Açı (°)">
+<input id="speed" type="number" placeholder="Hız (m/s)">
+<button onclick="baslat()">Başlat</button>
 
-<!-- VIDEO -->
-<video id="video" width="600" controls>
-    <source id="source" src="25.mp4" type="video/mp4">
-</video>
-
-<hr>
-
-<!-- KULLANICI AÇI GİRİŞİ -->
-<h3>Kendi açını dene</h3>
-<input type="number" id="aci" placeholder="Açı gir">
-<button onclick="simAc()">Simülasyonu Aç</button>
-
-<!-- PHET SIM -->
-<iframe id="sim"
-    src="https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_tr.html"
-    width="800"
-    height="600"
-    allowfullscreen>
-</iframe>
+<canvas id="canvas" width="900" height="500"></canvas>
 
 <script>
 
-// VIDEO DEĞİŞTİRME
-function videoDegistir(dosya) {
-    let video = document.getElementById("video");
-    let source = document.getElementById("source");
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 
-    source.src = dosya;
-    video.load();
-    video.play();
-}
+let x = 50;
+let y = 450;
 
-// PHET AÇI GİRİŞİ
-function simAc() {
-    let aci = document.getElementById("aci").value;
+let t = 0;
+let anim;
 
-    if (!aci) return;
+function baslat() {
+    cancelAnimationFrame(anim);
 
-    let iframe = document.getElementById("sim");
+    x = 50;
+    y = 450;
+    t = 0;
 
-    // bazı simler parametre kabul etmez ama URL ile deneme yapılır
-    iframe.src = "https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_tr.html";
+    let angle = document.getElementById("angle").value;
+    let v = document.getElementById("speed").value;
+
+    let rad = angle * Math.PI / 180;
+
+    let vx = v * Math.cos(rad);
+    let vy = v * Math.sin(rad);
+
+    function draw() {
+        ctx.clearRect(0, 0, 900, 500);
+
+        // yer
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 460, 900, 2);
+
+        // hareket denklemi
+        x = 50 + vx * t * 5;
+        y = 450 - (vy * t * 5 - 0.5 * 9.8 * t * t * 5);
+
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = "red";
+        ctx.fill();
+
+        t += 0.02;
+
+        if (y < 460) {
+            anim = requestAnimationFrame(draw);
+        }
+    }
+
+    draw();
 }
 
 </script>
